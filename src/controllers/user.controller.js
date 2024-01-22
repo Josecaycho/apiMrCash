@@ -49,7 +49,7 @@ const stateUser = async (req, res) => {
 }
 
 const validateDni = async (req, res) => {
-	res.json(`${process.env.HOST} - ${process.env.PORT} - ${process.env.DATABASE} - ${process.env.USER} - ${process.env.PASSWORD}`)
+	res.json(`${process.env.HOST} - ${process.env.PORT} - ${process.env.DATABASE} - ${process.env.USER_CONECTION} - ${process.env.PASSWORD}`)
 }
 
 const register = async (req, res) => {
