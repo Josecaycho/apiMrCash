@@ -2,12 +2,12 @@
     "name": "restapi-nodejs-express-mysql",
     "version": "1.0.0",
     "description": "",
-    "main": "src/app.js",
+    "main": "app.js",
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "babel-node": "babel-node --presets=@babel/preset-env",
-        "dev": "nodemon --exec npm run babel-node src/app.js"
+        "dev": "nodemon --exec npm run babel-node app.js "
     },
     "keywords": [],
     "author": "",
