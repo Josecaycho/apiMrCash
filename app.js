@@ -1,13 +1,11 @@
-import express from "express";
-import morgan from "morgan";
-import cors from "cors";
-import dotenv from "dotenv";
-// Routes
-import routerUser from "./src/routes/user.routes.js";
-dotenv.config()
-// const cors = require('cors');
+require("dotenv").config();
+
+const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
 
 const app = express();
+    routerUser = require('./src/routes/user.routes.js')
 
 // Settings
 app.set("port", 4000);
@@ -28,5 +26,3 @@ app.use("/api", routerUser)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
-
-export default app;

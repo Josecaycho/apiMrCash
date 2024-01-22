@@ -3,11 +3,12 @@
     "version": "1.0.0",
     "description": "",
     "main": "app.js",
-    "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "babel-node": "babel-node --presets=@babel/preset-env",
-        "dev": "nodemon --exec npm run babel-node app.js "
+        "dev": "nodemon app.js "
+    },
+    "engines": {
+        "node": ">=16.0.0"
     },
     "keywords": [],
     "author": "",
@@ -20,13 +21,10 @@
         "express": "^4.17.3",
         "jsonwebtoken": "^9.0.2",
         "moment": "^2.30.0",
+        "mysql2": "^3.7.1",
         "promise-mysql": "^5.1.0"
     },
     "devDependencies": {
-        "@babel/cli": "^7.17.6",
-        "@babel/core": "^7.17.8",
-        "@babel/node": "^7.16.8",
-        "@babel/preset-env": "^7.16.11",
         "morgan": "^1.10.0",
         "nodemon": "^2.0.15"
     }

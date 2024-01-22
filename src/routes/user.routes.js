@@ -1,7 +1,10 @@
-import { Router } from 'express'
-import { methods as userController } from "../controllers/user.controller.js";
 
-const router = Router();
+const express = require("express");
+router = express.Router();
+const userController = require("../controllers/user.controller");
+
+const connection = require('../../database');
+
 
 router.post("/crear-usuario", userController.register)
 router.post("/login", userController.login)
@@ -24,4 +27,4 @@ function verifyToken(req, res, next) {
   }
 }
 
-export default router
+module.exports = router
