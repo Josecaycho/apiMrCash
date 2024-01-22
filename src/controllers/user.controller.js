@@ -49,7 +49,19 @@ const stateUser = async (req, res) => {
 }
 
 const validateDni = async (req, res) => {
-	res.json(`${process.env.HOST} - ${process.env.PORT} - ${process.env.DATABASE} - ${process.env.USER} - ${process.env.PASSWORD}`)
+	try {
+		const data = req.params[0]
+		const connection = await getConnection()
+		await connection.query("SELECT * FROM mrc_user where dni = ?", data, async (err, result) => {
+			if(result.length > 0) {
+				res.status(400).json({success: false, message: "DNI ya existente", data: null, code: 400})
+			}else{
+				res.status(200).json({success: true, message: "Validado", data: null, code: 200})
+			}
+		})
+	} catch (error) {
+		
+	}
 }
 
 const register = async (req, res) => {
