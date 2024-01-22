@@ -6,7 +6,8 @@ const connection = mysql.createConnection({
     database: config.database,
     user: config.user,
     password: config.password,
-    insecureAuth : true
+    insecureAuth : true,
+    port: 3002
 });
 
 const getConnection = () => {
