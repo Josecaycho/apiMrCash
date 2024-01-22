@@ -1,9 +1,10 @@
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
 // Routes
-import routerUser from "./routes/user.routes";
+import routerUser from "./routes/user.routes.js";
 
-const cors = require('cors');
+// const cors = require('cors');
 
 const app = express();
 
