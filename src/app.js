@@ -1,10 +1,6 @@
 import express from "express";
 import morgan from "morgan";
 // Routes
-import campaniasRoutes from "./routes/campanias.routes";
-import variedadRoutes from "./routes/variedad.routes";
-import filasRoutes from "./routes/filas.routes";
-import materialesRoutes from "./routes/materiales.routes";
 import routerUser from "./routes/user.routes";
 
 const cors = require('cors');
@@ -24,10 +20,8 @@ app.use(cors({
 }));
 
 // Routes campanias
-app.use("/api/campanias", campaniasRoutes);
-app.use("/api/variedad", variedadRoutes);
-app.use("/api/filas", filasRoutes);
-app.use("/api/materiales", materialesRoutes);
+app.get('/', (req, res) => {res.json('este es mi api')});
 app.use("/api", routerUser)
+
 
 export default app;
