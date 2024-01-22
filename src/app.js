@@ -2,7 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 // Routes
-import routerUser from "./routes/user.routes.js";
+// import routerUser from "./routes/user.routes.js";
 
 // const cors = require('cors');
 
@@ -22,7 +22,7 @@ app.use(cors({
 
 // Routes campanias
 app.get('/', (req, res) => {res.json('este es mi api')});
-app.use("/api", routerUser)
+// app.use("/api", routerUser)
 
 
 export default app;
