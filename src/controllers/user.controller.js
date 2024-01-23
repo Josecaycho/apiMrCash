@@ -50,8 +50,9 @@ const validateDni = async (req, res) => {
 	// res.json('este es mi api sdsd')
 	try {
 		const data = req.params[0]
-		const [result] = await connection.query("SELECT * FROM mrcash.mrc_user where dni = ? ", data)
-		if(result.length > 0) {
+		const [result] = await connection.query("call validate_dni(?) ", [data])
+		console.log(result)
+		if(result[0].length > 0) {
 			res.status(400).json({success: false, message: "DNI ya existente", data: null, code: 400})
 		}else{
 			res.status(200).json({success: true, message: "Validado", data: null, code: 200})
@@ -70,17 +71,13 @@ const register = async (req, res) => {
 		}
 		const token = encyptPasswordAES(`${data.password}${data.nombres}`, 'SECRET_TOKEN')
 		const user = {  ...data, password: hashed, token };
-		try {
-				const [result] = await connection.query("call new_user(?,?,?,?,?,?,?,?,?,?)", [user.dni, user.nombres, user.apellidos, user.email, user.phone, user.password, user.politic_person, user.t_c, user.politic_data, user.token])
-				if(result.length > 0) {
-					res.status(200).json({success: true, message: "Usuario Creado Correctamente", data: null, code: 200})
-				}
-		} catch (error) {
-			res.status(400).json({success: false, message: "Error", data: null, code: 400})
+		const [result] = await connection.query('CALL mrcash.new_user(?,?,?,?,?,?,?,?,?,?) ', [user.dni, user.nombres, user.apellidos, user.email, user.phone, user.password, user.politic_person, user.t_c, user.politic_data, user.token])
+		if(result[0].length > 0) {
+			res.status(200).json({success: true, message: "Usuario Creado Correctamente", data: null, code: 200})
 		}
 	} catch (error) {
-			res.status(500);
-			res.send(error.message);
+		console.log('error')
+		res.status(400).json({success: false, message: "Error", data: null, code: 400})
 	}
 }
 

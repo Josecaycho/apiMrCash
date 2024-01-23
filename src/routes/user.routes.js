@@ -6,7 +6,7 @@ const userController = require("../controllers/user.controller");
 const connection = require('../../database');
 
 
-router.post("/crear-usuario", userController.register)
+router.post("/crearUsuario", userController.register)
 router.post("/login", userController.login)
 router.get("/stateUser/*",verifyToken, userController.stateUser)
 router.post("/validateDataUser/*",verifyToken, userController.validateDataUser)
