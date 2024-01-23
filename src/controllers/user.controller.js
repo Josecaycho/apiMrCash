@@ -70,20 +70,14 @@ const register = async (req, res) => {
 		}
 		const token = encyptPasswordAES(`${data.password}${data.nombres}`, 'SECRET_TOKEN')
 		const user = {  ...data, password: hashed, token };
-		const [result] = await connection.query("SELECT * FROM mrc_user where dni = ?", data.dni)
-		if(result.length > 0) {
-			res.status(400).json({success: false, message: "Usuario ya existente", data: null, code: 400})	
-		}else {
-			try {
-					const [result] = await connection.query("call new_user(?,?,?,?,?,?,?,?,?,?)", [user.dni, user.nombres, user.apellidos, user.email, user.phone, user.password, user.politic_person, user.t_c, user.politic_data, user.token])
-					if(result.length > 0) {
-						res.status(200).json({success: true, message: "Usuario Creado Correctamente", data: null, code: 200})
-					}
-			} catch (error) {
-				res.status(400).json({success: false, message: "Error", data: null, code: 400})
-			}
+		try {
+				const [result] = await connection.query("call new_user(?,?,?,?,?,?,?,?,?,?)", [user.dni, user.nombres, user.apellidos, user.email, user.phone, user.password, user.politic_person, user.t_c, user.politic_data, user.token])
+				if(result.length > 0) {
+					res.status(200).json({success: true, message: "Usuario Creado Correctamente", data: null, code: 200})
+				}
+		} catch (error) {
+			res.status(400).json({success: false, message: "Error", data: null, code: 400})
 		}
-		
 	} catch (error) {
 			res.status(500);
 			res.send(error.message);
