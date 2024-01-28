@@ -117,6 +117,7 @@ const restorePassword = async (req, res) => {
 const validateDataUser = async (req, res) => {
 	const data = req.body
 	const token = req.token
+	console.log(data)
 	const [result] = await connection.query("call save_image_state_history(?,?,?,?)", [token, data.img1, data.img2, data.type])
 	if (result.length > 0) {
 		res.status(200).json({success: true, message: "Correcto", data: null, code: 200})	
@@ -128,18 +129,41 @@ const validateDataUser = async (req, res) => {
 const validateDataBank = async (req, res) => {
 	const data = req.body
 	const token = req.token
-	const [result] = await connection.query("call new_bank(?,?,?,?,?,?,?)", [
+	const [result] = await connection.query("call new_bank(?,?,?,?,?,?,?,?)", [
 		token,
-		data.bank,
-		data.typeAccount,
-		data.numberAccount,
-		data.aliasAccount,
+		data.mrc_bank_id,
+		data.mrc_type_account_id,
+		data.number_account,
+		data.alias_account,
 		data.typeMoney,	
-		data.accountHolder
+		data.accountHolder,
+		data.id
 	]) 
 
 	if (result.length > 0) {
 		res.status(200).json({success: true, message: "Correcto", data: null, code: 200})	
+	}else {
+		res.status(400).json({success: false, message: "Ocurrio un error", data: null, code: 400})
+	}
+}
+
+const listBanksUser = async (req, res) => {
+	const token = req.token
+	const [result] = await connection.query("call get_banks_user(?)", [token])
+
+	if (result.length > 0) {
+		res.status(200).json({success: true, message: "Correcto", data: result[0], code: 200})	
+	}else {
+		res.status(400).json({success: false, message: "Ocurrio un error", data: null, code: 400})
+	}
+}
+
+const deleteBankUser = async (req, res) => {
+	const token = req.token
+	const [result] = await connection.query("update mrc_user_banks set state = 0 where id = ?", [ req.params[0]])
+	
+	if (result) {
+		res.status(200).json({success: true, message: "Correcto", data: result[0], code: 200})	
 	}else {
 		res.status(400).json({success: false, message: "Ocurrio un error", data: null, code: 400})
 	}
@@ -153,7 +177,9 @@ module.exports = {
 	restorePassword,
 	validateDni,
 	validateDataUser,
-	validateDataBank
+	validateDataBank,
+	listBanksUser,
+	deleteBankUser
 }
 
 // export const methods = {
