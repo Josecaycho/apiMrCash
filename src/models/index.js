@@ -8,7 +8,7 @@ const basename = path.basename(__filename);
 const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_CONECTION, process.env.PASSWORD, {
   host: process.env.Host,
   dialect: "mysql",
-  port: 3306,
+  port: 3302,
   define: {
     timestamps: false
   }
