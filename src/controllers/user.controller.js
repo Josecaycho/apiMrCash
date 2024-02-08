@@ -143,7 +143,7 @@ const validateDataUser = async (req, res) => {
 
 const sendImageValidate = async (req, res) => {
 	const tokenSearch = req.token
-	const dniUser = models.user.findOne({
+	const dniUser = await models.user.findOne({
 		where: {
 			token: tokenSearch
 		}
