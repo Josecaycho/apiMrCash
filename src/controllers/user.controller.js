@@ -1,6 +1,9 @@
 const CryptoJS = require('crypto-js');
 const moment = require('moment');
 const connection = require('../../database');
+const {uploadFileValidate,getFiles, getFile, uploadFileOrder } = require('./../../s3.js')
+
+const models = require("../models/index")
 
 const key = 'SECRET_PASSWORD';
 
@@ -10,15 +13,28 @@ const encyptPasswordAES = (password, secret) => {
 
 const login = async (req, res) => {
 	try {
+		console.log(req)
 		const data = req.body;
 		console.log(data)
-		const [result] = await connection.query("SELECT * FROM mrcash.mrc_user where dni = ? ", data.dni)
-		console.log(result)
-		if(result.length > 0) {
-			const decryptedPasswordConection = CryptoJS.AES.decrypt(result[0].password, key)
+		const [result] = await connection.query("call login_user(?)", [data.dni])
+		if(result[0].length > 0) {
+			const user = result[0]
+			for (let i = 0; i < user.length; i++) {
+				user[i].dataBank = await models.userBank.findAll({
+					where: {
+						mrc_user_id: user[i].id
+					},
+					include: [
+						{
+							model: models.bank
+						}
+					]
+				})
+			}
+			const decryptedPasswordConection = CryptoJS.AES.decrypt(user[0].password, key)
 			const decryptedPasswordRequest = CryptoJS.AES.decrypt(data.password, key)
 			if(decryptedPasswordConection.toString(CryptoJS.enc.Utf8) === decryptedPasswordRequest.toString(CryptoJS.enc.Utf8)) {
-				res.status(200).json({success: true, data: result[0],code: 200, message: 'Usuario logeado correctamente'})
+				res.status(200).json({success: true, data: user[0],code: 200, message: 'Usuario logeado correctamente'})
 			}else {
 				res.status(400).json({success: false, data: null,code: 400, message: 'Contraseña incorrecta'})
 			}
@@ -37,7 +53,7 @@ const stateUser = async (req, res) => {
 		const token = req.token
 		const [result] = await connection.query("call validate_state_user(?) ", [token])
 		if (result.length > 0) {
-			res.status(200).json({success: true, message: "Correcto", data: result[0], code: 200})	
+			res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
 		}else {
 			res.status(400).json({success: false, message: "Token Inactivo", data: null, code: 400})
 		}
@@ -108,7 +124,7 @@ const restorePassword = async (req, res) => {
 	const data = req.body
 	const [result] = await connection.query("call restore_password(?,?)", [data.token, data.password])
 	if (result.length > 0) {
-		res.status(200).json({success: true, message: "Correcto", data: null, code: 200})	
+		res.status(200).json({success: true, message: "success", data: null, code: 200})	
 	}else {
 		res.status(400).json({success: false, message: "Token Inactivo", data: null, code: 400})
 	}
@@ -117,13 +133,25 @@ const restorePassword = async (req, res) => {
 const validateDataUser = async (req, res) => {
 	const data = req.body
 	const token = req.token
-	console.log(data)
 	const [result] = await connection.query("call save_image_state_history(?,?,?,?)", [token, data.img1, data.img2, data.type])
 	if (result.length > 0) {
-		res.status(200).json({success: true, message: "Correcto", data: null, code: 200})	
+		res.status(200).json({success: true, message: "success", data: null, code: 200})	
 	}else {
 		res.status(400).json({success: false, message: "Token Inactivo", data: null, code: 400})
 	}
+}
+
+const sendImageValidate = async (req, res) => {
+	const tokenSearch = req.token
+	const dniUser = models.user.findOne({
+		where: {
+			token: tokenSearch
+		}
+	})
+	const file = req.files[0]
+	const result = await uploadFileValidate(file, dniUser.dni)
+	if(result.result.$metadata.httpStatusCode === 200) 
+		res.status(200).json({success: true, message: "success", data: {Key: result.key}, code: 200})
 }
 
 const validateDataBank = async (req, res) => {
@@ -141,9 +169,9 @@ const validateDataBank = async (req, res) => {
 	]) 
 
 	if (result.length > 0) {
-		res.status(200).json({success: true, message: "Correcto", data: null, code: 200})	
+		res.status(200).json({success: true, message: "success", data: null, code: 200})	
 	}else {
-		res.status(400).json({success: false, message: "Ocurrio un error", data: null, code: 400})
+		res.status(400).json({success: false, message: "error", data: null, code: 400})
 	}
 }
 
@@ -152,9 +180,9 @@ const listBanksUser = async (req, res) => {
 	const [result] = await connection.query("call get_banks_user(?)", [token])
 
 	if (result.length > 0) {
-		res.status(200).json({success: true, message: "Correcto", data: result[0], code: 200})	
+		res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
 	}else {
-		res.status(400).json({success: false, message: "Ocurrio un error", data: null, code: 400})
+		res.status(400).json({success: false, message: "error", data: null, code: 400})
 	}
 }
 
@@ -163,10 +191,115 @@ const deleteBankUser = async (req, res) => {
 	const [result] = await connection.query("update mrc_user_banks set state = 0 where id = ?", [ req.params[0]])
 	
 	if (result) {
-		res.status(200).json({success: true, message: "Correcto", data: result[0], code: 200})	
+		res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
 	}else {
-		res.status(400).json({success: false, message: "Ocurrio un error", data: null, code: 400})
+		res.status(400).json({success: false, message: "error", data: null, code: 400})
 	}
+}
+
+const updateDataUser = async (req, res) => {
+	const token = req.token
+	const data = req.body
+	const [result] = await connection.query("call update_data_user(?,?,?,?)", [token, data.emailv, data.nombresv, data.apellidosv])
+	if (result.length > 0) {
+		res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
+	}else {
+		res.status(400).json({success: false, message: "error", data: null, code: 400})
+	}
+}
+const generateUrl = async (req, res) => {
+	const token = req.token
+	const fileView = req.body
+	const result = getFile(`${fileView.img}`)
+}
+
+const listOrders = async (req, res) => {
+	const token = req.token
+	await connection.query("call get_all_orders(?)", [token]).then(async (dt) => {
+		let data = dt[0][0]
+		for (let i = 0; i < data.length; i++) {
+			data[i].dataBank = await models.bank.findOne({
+				where: {
+						id: data[i].mrc_bank_id
+				}
+			})
+			data[i].bankUser = await models.userBank.findOne({
+				where: {
+						id: data[i].mrc_user_bank_id
+				},
+				include: [
+					{
+						model: models.bank
+					}
+				]
+			})
+		}
+		if(data.length > 0) {
+			res.status(200).json({success: true, message: "success", data: data, code: 200})	
+		} else res.status(400).json({success: false, message: "error", data: null, code: 400})
+	})
+}
+
+const newOrder = async (req, res) => {
+	const token = req.token
+	const data = req.body
+	const [result] = await connection.query("call generate_new_order(?,?,?,?,?,?)", [token, data.bank, data.bankUser, data.send, data.receive, data.comision])
+	if (result.length > 0) {
+		res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
+	}else {
+		res.status(400).json({success: false, message: "error", data: null, code: 400})
+	}
+}
+
+const finalyOrder = async (req, res) => {
+	const token = req.token
+	const order = req.params
+	console.log(order)
+	try {
+		await models.order.update(
+			{ state: 1},
+			{
+				where: {
+					codigo: order.orden
+				}
+			}
+		)	
+		res.status(200).json({success: true, message: "success", data: [], code: 200})
+	} catch (error) {
+		
+	}
+}
+
+const sendImageOrder = async (req, res) => {
+	const tokenSearch = req.token
+	const order = req.params
+	const dniUser = await models.user.findOne({
+		where: {
+			token: tokenSearch
+		}
+	})
+	const file = req.files[0]
+	const result = await uploadFileOrder(file, dniUser.dni)
+	if(result.result.$metadata.httpStatusCode === 200) {
+		try {
+			await models.order.update(
+				{ img: `vaucher/${dniUser.dni}/${result.key}`},
+				{
+					where: {
+						codigo: order.orden
+					}
+				}
+			)	
+			res.status(200).json({success: true, message: "success", data: {Key: result.key}, code: 200})
+		} catch (error) {
+			
+		}
+	}
+}
+
+const banks = async (req, res) => {
+	let banks = await models.bank.findAll()
+	return res.status(200).json({success: true, message: "success", data: banks, code: 200})	
 }
 
 module.exports = {
@@ -179,7 +312,15 @@ module.exports = {
 	validateDataUser,
 	validateDataBank,
 	listBanksUser,
-	deleteBankUser
+	deleteBankUser,
+	updateDataUser,
+	sendImageValidate,
+	generateUrl,
+	listOrders,
+	banks,
+	newOrder,
+	sendImageOrder,
+	finalyOrder
 }
 
 // export const methods = {

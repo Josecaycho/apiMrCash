@@ -1,8 +1,9 @@
 require("dotenv").config();
-
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+
+const {uploadFile,getFiles, getFile } = require('./s3.js')
 
 const app = express();
     routerUser = require('./src/routes/user.routes.js')
@@ -20,9 +21,12 @@ app.use(cors({
 }));
 
 // Routes campanias
-app.get('/', (req, res) => {res.json('este es mi api')});
-app.use("/api", routerUser)
+app.get('/files', async (req, res) => {
+    const result = await getFiles()
+    res.json(result.Contents)
+});
 
+app.use("/api", routerUser)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
