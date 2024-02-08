@@ -6,7 +6,7 @@ const {Sequelize,DataTypes} = require('sequelize');
 const basename = path.basename(__filename);
 
 const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_CONECTION, process.env.PASSWORD, {
-  host: process.env.Host,
+  host: process.env.HOST,
   dialect: "mysql",
   port: 3306,
   define: {
