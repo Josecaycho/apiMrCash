@@ -234,9 +234,7 @@ const listOrders = async (req, res) => {
 				]
 			})
 		}
-		if(data.length > 0) {
-			res.status(200).json({success: true, message: "success", data: data, code: 200})	
-		} else res.status(400).json({success: false, message: "error", data: null, code: 400})
+		res.status(200).json({success: true, message: "success", data: data, code: 200})
 	})
 }
 
@@ -302,6 +300,11 @@ const banks = async (req, res) => {
 	return res.status(200).json({success: true, message: "success", data: banks, code: 200})	
 }
 
+const typeAccounts = async (req, res) => {
+	let types = await models.typesAccount.findAll()
+	return res.status(200).json({success: true, message: "success", data: types, code: 200})	
+}
+
 module.exports = {
 	login,
 	register,
@@ -320,7 +323,8 @@ module.exports = {
 	banks,
 	newOrder,
 	sendImageOrder,
-	finalyOrder
+	finalyOrder,
+	typeAccounts
 }
 
 // export const methods = {

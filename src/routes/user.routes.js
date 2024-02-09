@@ -31,6 +31,7 @@ router.post("/newOrder", verifyToken, userController.newOrder)
 router.get("/saveOrder/:orden", verifyToken, userController.finalyOrder)
 
 router.get("/banks", userController.banks)
+router.get("/typeAccounts", userController.typeAccounts)
 
 function verifyToken(req, res, next) {
   const bearearHeader = req.headers['authorization']
