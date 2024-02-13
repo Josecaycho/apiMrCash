@@ -25,9 +25,8 @@ const login = async (req, res) => {
 						mrc_user_id: user[i].id
 					},
 					include: [
-						{
-							model: models.bank
-						}
+						{ model: models.bank },
+						{ model: models.typesAccount }
 					]
 				})
 			}
@@ -105,10 +104,9 @@ const recoveryPassword = async (req, res) => {
 				const token = encyptPasswordAES(`${result[0].token}`, 'TOKEN_RESET_PASSWORD')
 				const timeToken = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 				try {
-					const [result] = await connection.query("UPDATE mrc_user SET ? WHERE email = ?", [{passwordToken: token ,passwordTimeToken: timeToken }, data.email])
-					if(result.length > 0) {
-						res.status(200).json({success: true, message: "Solicitud enviada correctamente", data: null, code: 200})		
-					}
+					await connection.query("UPDATE mrc_user SET passwordToken = ? ,passwordTimeToken = ?  WHERE email = ?", [token,timeToken,data.email]).then(async (dt) => {
+						res.status(200).json({success: true, message: "Solicitud enviada correctamente", data: {token: token}, code: 200})
+					})
 				} catch (error) {
 					
 				}
@@ -122,11 +120,15 @@ const recoveryPassword = async (req, res) => {
 
 const restorePassword = async (req, res) => {
 	const data = req.body
-	const [result] = await connection.query("call restore_password(?,?)", [data.token, data.password])
-	if (result.length > 0) {
-		res.status(200).json({success: true, message: "success", data: null, code: 200})	
+	const token = data.token.replace(/ /g, "+")
+	const [result] = await connection.query("call mrcash.restore_password(?,?)", [token, data.password])
+	console.log(result[0][0], 'resu')
+	if(result[0].length > 0) {
+		if(!result[0][0].respuesta)
+			res.status(200).json({success: true, message: "success", data: result[0][0], code: 200})
+		else res.status(400).json({success: false, message: "Token Inactivo", data: null, code: 400})
 	}else {
-		res.status(400).json({success: false, message: "Token Inactivo", data: null, code: 400})
+		res.status(400).json({success: false, message: "Token Inactivo error", data: null, code: 400})
 	}
 }
 
@@ -157,7 +159,8 @@ const sendImageValidate = async (req, res) => {
 const validateDataBank = async (req, res) => {
 	const data = req.body
 	const token = req.token
-	const [result] = await connection.query("call new_bank(?,?,?,?,?,?,?,?)", [
+
+	await connection.query("call new_bank(?,?,?,?,?,?,?,?)", [
 		token,
 		data.mrc_bank_id,
 		data.mrc_type_account_id,
@@ -166,29 +169,37 @@ const validateDataBank = async (req, res) => {
 		data.typeMoney,	
 		data.accountHolder,
 		data.id
-	]) 
-
-	if (result.length > 0) {
-		res.status(200).json({success: true, message: "success", data: null, code: 200})	
-	}else {
-		res.status(400).json({success: false, message: "error", data: null, code: 400})
-	}
+	]).then(async (dt) => {
+		let data = dt[0][0]
+		for (let i = 0; i < data.length; i++) {
+			data[i].dataBank = await models.bank.findOne({
+				where: {
+						id: data[i].mrc_bank_id
+				}
+			})
+		}
+		res.status(200).json({success: true, message: "success", data: data, code: 200})
+	})
 }
 
 const listBanksUser = async (req, res) => {
 	const token = req.token
-	const [result] = await connection.query("call get_banks_user(?)", [token])
-
-	if (result.length > 0) {
-		res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
-	}else {
-		res.status(400).json({success: false, message: "error", data: null, code: 400})
-	}
+	await connection.query("call get_banks_user(?)", [token]).then(async (dt) => {
+		let data = dt[0][0]
+		for (let i = 0; i < data.length; i++) {
+			data[i].dataBank = await models.bank.findOne({
+				where: {
+						id: data[i].mrc_bank_id
+				}
+			})
+		}
+		res.status(200).json({success: true, message: "success", data: data, code: 200})
+	})
 }
 
 const deleteBankUser = async (req, res) => {
 	const token = req.token
-	const [result] = await connection.query("update mrc_user_banks set state = 0 where id = ?", [ req.params[0]])
+	const [result] = await connection.query("update mrc_user_banks set state = 1 where id = ?", [ req.params[0]])
 	
 	if (result) {
 		res.status(200).json({success: true, message: "success", data: result[0], code: 200})	
@@ -296,12 +307,28 @@ const sendImageOrder = async (req, res) => {
 }
 
 const banks = async (req, res) => {
-	let banks = await models.bank.findAll()
+	let banks = await models.bank.findAll({
+		include: [
+			{
+				model: models.typesAccount
+			}
+		]
+	})
 	return res.status(200).json({success: true, message: "success", data: banks, code: 200})	
 }
 
 const typeAccounts = async (req, res) => {
-	let types = await models.typesAccount.findAll()
+	const idBank = req.params
+	let types = await models.typesAccount.findOne({
+		where: {
+			mrc_bank_id: idBank.bank
+		},
+		include: [
+			{
+				model: models.bank
+			}
+		]
+	})
 	return res.status(200).json({success: true, message: "success", data: types, code: 200})	
 }
 

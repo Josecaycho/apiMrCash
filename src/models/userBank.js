@@ -53,6 +53,9 @@ module.exports = (sequelize, DataTypes) => {
     userBank.belongsTo(models.bank, {
       foreignKey: 'mrc_bank_id'
     })
+    userBank.belongsTo(models.typesAccount, {
+      foreignKey: 'mrc_type_account_id'
+    })
   };
 
 

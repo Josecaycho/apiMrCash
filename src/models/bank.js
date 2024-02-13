@@ -27,12 +27,16 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   Bank.associate = function (models) {
+    Bank.hasMany(models.typesAccount,{ 
+      foreignKey: 'mrc_bank_id' 
+    })
     Bank.hasMany(models.order, {
       foreignKey: 'mrc_bank_id'
     })
     Bank.hasMany(models.userBank, {
       foreignKey: 'mrc_bank_id'
     })
+    
   };
 
 

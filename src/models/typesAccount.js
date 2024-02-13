@@ -9,6 +9,14 @@ module.exports = (sequelize, DataTypes) => {
     account_name: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    digits: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    mrc_bank_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, 
   {
@@ -23,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   TypesAccount.associate = function (models) {
+    TypesAccount.belongsTo(models.bank, {
+      foreignKey: 'mrc_bank_id'
+    })
+    TypesAccount.hasMany(models.userBank, {
+      foreignKey: 'mrc_type_account_id'
+    })
   };
 
 
