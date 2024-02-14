@@ -3,7 +3,11 @@ const moment = require('moment');
 const connection = require('../../database');
 const {uploadFileValidate,getFiles, getFile, uploadFileOrder } = require('./../../s3.js')
 
-const models = require("../models/index")
+const models = require("../models/index");
+const order = require('../models/order.js');
+
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 const key = 'SECRET_PASSWORD';
 
@@ -226,27 +230,37 @@ const generateUrl = async (req, res) => {
 
 const listOrders = async (req, res) => {
 	const token = req.token
-	await connection.query("call get_all_orders(?)", [token]).then(async (dt) => {
-		let data = dt[0][0]
-		for (let i = 0; i < data.length; i++) {
-			data[i].dataBank = await models.bank.findOne({
-				where: {
-						id: data[i].mrc_bank_id
-				}
-			})
-			data[i].bankUser = await models.userBank.findOne({
-				where: {
-						id: data[i].mrc_user_bank_id
-				},
+	const {page, size, monto} = req.query
+	const userId = await models.user.findOne({
+		where: {
+			token: token
+		}
+	})
+	const dataOrder = await models.order.findAndCountAll({
+		limit: parseInt(size),
+		offset: page * size,
+		where: {
+			mrc_user_id: userId.id,
+			state: 1,
+			monto_send: {
+				[Op.like]: `%${monto}%`
+			}
+		},
+		include: [
+			{
+				model: models.bank
+			},
+			{
+				model: models.userBank,
 				include: [
 					{
 						model: models.bank
 					}
 				]
-			})
-		}
-		res.status(200).json({success: true, message: "success", data: data, code: 200})
+			}
+		]
 	})
+	res.status(200).json({success: true, message: "success", data: dataOrder, code: 200})
 }
 
 const newOrder = async (req, res) => {

@@ -47,6 +47,10 @@ module.exports = (sequelize, DataTypes) => {
     codigo: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    number_account: {
+      type: DataTypes.STRING,
+      allowNull: false
     }
   },
   {
