@@ -230,7 +230,7 @@ const generateUrl = async (req, res) => {
 
 const listOrders = async (req, res) => {
 	const token = req.token
-	const {page, size, monto} = req.query
+	const {page, size, monto, state, startDate, endDate} = req.query
 	const userId = await models.user.findOne({
 		where: {
 			token: token
@@ -241,9 +241,12 @@ const listOrders = async (req, res) => {
 		offset: page * size,
 		where: {
 			mrc_user_id: userId.id,
-			state: 1,
+			state: state,
 			monto_send: {
 				[Op.like]: `%${monto}%`
+			},
+			create_date: {
+				[Op.between] : [startDate , endDate ]
 			}
 		},
 		include: [
