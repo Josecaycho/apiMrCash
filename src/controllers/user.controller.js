@@ -17,13 +17,16 @@ const encyptPasswordAES = (password, secret) => {
 
 const login = async (req, res) => {
 	try {
-		console.log(req)
 		const data = req.body;
-		console.log(data)
 		const [result] = await connection.query("call login_user(?)", [data.dni])
 		if(result[0].length > 0) {
 			const user = result[0]
 			for (let i = 0; i < user.length; i++) {
+				user[i].rol = await models.rol.findOne({
+					where: {
+						id: user[i].id_rol
+					}
+				})
 				user[i].dataBank = await models.userBank.findAll({
 					where: {
 						mrc_user_id: user[i].id
@@ -164,7 +167,7 @@ const validateDataBank = async (req, res) => {
 	const data = req.body
 	const token = req.token
 
-	await connection.query("call new_bank(?,?,?,?,?,?,?,?)", [
+	await connection.query("call new_bank(?,?,?,?,?,?,?,?,?)", [
 		token,
 		data.mrc_bank_id,
 		data.mrc_type_account_id,
@@ -172,7 +175,8 @@ const validateDataBank = async (req, res) => {
 		data.alias_account,
 		data.typeMoney,	
 		data.accountHolder,
-		data.id
+		data.id,
+		data.type
 	]).then(async (dt) => {
 		let data = dt[0][0]
 		for (let i = 0; i < data.length; i++) {
@@ -370,14 +374,3 @@ module.exports = {
 	finalyOrder,
 	typeAccounts
 }
-
-// export const methods = {
-// 	login,
-// 	register,
-// 	stateUser,
-// 	recoveryPassword,
-// 	restorePassword,
-// 	validateDni,
-// 	validateDataUser,
-// 	validateDataBank
-// };

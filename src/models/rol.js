@@ -1,26 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
-  let User = sequelize.define('user', {
+  let Rol = sequelize.define('rol', {
     id: {
       type: DataTypes.BIGINT,
       autoIncrement: true,
       primaryKey: true,
       allowNull: false
     },
-    dni: {
+    name: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    token: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    id_rol: {
-      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, 
   {
-    tableName: 'mrc_user',
+    tableName: 'mrc_roles',
   },
   {
     timestamps: false
@@ -30,12 +22,12 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
   })
 
-  User.associate = function (models) {
-    User.belongsTo(models.rol, {
-      foreignKey: 'id_rol'
+  Rol.associate = function (models) {
+    Rol.hasMany(models.user,{ 
+      foreignKey: 'id_rol' 
     })
   };
 
 
-  return User
+  return Rol
 }
