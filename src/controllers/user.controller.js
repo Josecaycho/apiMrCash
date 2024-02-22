@@ -19,6 +19,7 @@ const login = async (req, res) => {
 	try {
 		const data = req.body;
 		const [result] = await connection.query("call login_user(?)", [data.dni])
+		await models.logs.create({ruta: req.originalUrl , text: `cuerpo - ${JSON.stringify(data)}` })
 		if(result[0].length > 0) {
 			const user = result[0]
 			for (let i = 0; i < user.length; i++) {
@@ -40,11 +41,14 @@ const login = async (req, res) => {
 			const decryptedPasswordConection = CryptoJS.AES.decrypt(user[0].password, key)
 			const decryptedPasswordRequest = CryptoJS.AES.decrypt(data.password, key)
 			if(decryptedPasswordConection.toString(CryptoJS.enc.Utf8) === decryptedPasswordRequest.toString(CryptoJS.enc.Utf8)) {
+				await models.logs.create({ruta: req.originalUrl , text: `200 - Usuario logeado correctamente - ${JSON.stringify(user[0])}`})
 				res.status(200).json({success: true, data: user[0],code: 200, message: 'Usuario logeado correctamente'})
 			}else {
+				await models.logs.create({ruta: req.originalUrl , text: `400 - Contraseña incorrecta - ${JSON.stringify(user[0])}`})
 				res.status(400).json({success: false, data: null,code: 400, message: 'Contraseña incorrecta'})
 			}
 		} else {
+			await models.logs.create({ruta: req.originalUrl , text: `400 - Usuario No existe}`})
 			res.status(400).json({success: false, data: null,code: 400, message: 'Usuario No existe'})
 		}
 		
@@ -73,7 +77,6 @@ const validateDni = async (req, res) => {
 	try {
 		const data = req.params[0]
 		const [result] = await connection.query("call validate_dni(?) ", [data])
-		console.log(result)
 		if(result[0].length > 0) {
 			res.status(400).json({success: false, message: "DNI ya existente", data: null, code: 400})
 		}else{
@@ -87,6 +90,7 @@ const validateDni = async (req, res) => {
 const register = async (req, res) => {
 	try {
 		const data = req.body;
+		await models.logs.create({ruta: req.originalUrl , text: `cuerpo - ${JSON.stringify(data)}` })
 		let hashed = ''
 		if (data.dni !== '' && data.password !== '') {
 			hashed = encyptPasswordAES(data.password, 'SECRET_PASSWORD')
@@ -94,11 +98,16 @@ const register = async (req, res) => {
 		const token = encyptPasswordAES(`${data.password}${data.nombres}`, 'SECRET_TOKEN')
 		const user = {  ...data, password: hashed, token };
 		const [result] = await connection.query('CALL mrcash.new_user(?,?,?,?,?,?,?,?,?,?) ', [user.dni, user.nombres, user.apellidos, user.email, user.phone, user.password, user.politic_person, user.t_c, user.politic_data, user.token])
+		await models.logs.create({ruta: req.originalUrl , text: `result - ${JSON.stringify(result)}` })
 		if(result[0].length > 0) {
+			await models.logs.create({ruta: req.originalUrl , text: `200 - Usuario Creado Correctamente - ${JSON.stringify(result)}` })
 			res.status(200).json({success: true, message: "Usuario Creado Correctamente", data: null, code: 200})
+		}else{
+			await models.logs.create({ruta: req.originalUrl , text: `400 - Uno se creo corecctamente - ${JSON.stringify(result)}` })
+			res.status(400).json({success: true, message: "Usuario no se creo corecctamente", data: null, code: 200})
 		}
 	} catch (error) {
-		console.log('error')
+		await models.logs.create({ruta: req.originalUrl , text: `result - ${JSON.stringify(result)}` })
 		res.status(400).json({success: false, message: "Error", data: null, code: 400})
 	}
 }
