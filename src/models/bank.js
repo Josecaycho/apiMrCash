@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    info: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false
+    }
   }, 
   {
     tableName: 'mrc_banks',

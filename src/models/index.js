@@ -37,28 +37,3 @@ db.Sequelize = Sequelize;
 sequelize.sync(); // actualiza la base de datos cuando hay cambios en las tablas
 
 module.exports = db;
-
-// db.Sequelize = Sequelize
-// db.sequelize = sequelize
-
-// db.orders = require('./order.js')(sequelize, DataTypes)
-// db.banks = require('./bank.js')(sequelize, DataTypes)
-
-// db.sequelize.sync({ force: false })
-// .then(() => {
-//     console.log('yes re-sync done!')
-// })
-
-// // 1 to Many Relation
-
-// db.orders.hasMany(db.banks, {
-//     foreignKey: 'mrc_bank_id',
-//     as: 'bank'
-// })
-
-// db.banks.belongsTo(db.orders, {
-//     foreignKey: 'mrc_bank_id',
-//     as: 'mrc_banks'
-// })
-
-// module.exports = db;

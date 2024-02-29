@@ -7,6 +7,7 @@ const {uploadFile,getFiles, getFile } = require('./s3.js')
 
 const app = express();
     routerUser = require('./src/routes/user.routes.js')
+    routerAdmin = require('./src/routes/admin.routes.js')
 
 // Settings
 app.set("port", 4000);
@@ -27,6 +28,7 @@ app.get('/files', async (req, res) => {
 });
 
 app.use("/api", routerUser)
+app.use("/api/admin", routerAdmin)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`Listening on port ${port}`))

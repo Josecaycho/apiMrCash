@@ -10,8 +10,24 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    nombres: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    apellidos: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     token: {
       type: DataTypes.STRING,
+      allowNull: false
+    },
+    state: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    comision: {
+      type: DataTypes.DECIMAL(10,2),
       allowNull: false
     },
     id_rol: {
