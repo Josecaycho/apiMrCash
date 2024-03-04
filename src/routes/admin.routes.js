@@ -12,6 +12,7 @@ const upload = multer({
 })
 
 router.get("/users",verifyToken, adminController.users)
+router.get("/user/:idUser", verifyToken, adminController.userDetail)
 
 function verifyToken(req, res, next) {
   const bearearHeader = req.headers['authorization']

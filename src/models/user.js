@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     token: {
       type: DataTypes.STRING,
       allowNull: false
@@ -49,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = function (models) {
     User.belongsTo(models.rol, {
       foreignKey: 'id_rol'
+    })
+    User.hasMany(models.userBank, {
+      foreignKey: 'mrc_user_id'
+    })
+    User.hasOne(models.userFiles, {
+      foreignKey: 'mrc_user_id'
     })
   };
 

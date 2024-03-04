@@ -32,6 +32,37 @@ const users = async (req, res) => {
 	return res.status(200).json({success: true, message: "success", data: result, code: 200})	
 }
 
+const userDetail = async (req, res) => {
+  const data = req.params.idUser
+  console.log(req.params.idUser,'body')
+  let result = await models.user.findOne({
+    where: {
+      id: parseInt(data),
+    },
+    include: [
+      {
+        model: models.userBank,
+        where: {
+          state: 0
+        },
+        include: [
+					{
+						model: models.bank
+					},
+          {
+            model: models.typesAccount
+          }
+				]
+      },
+      {
+        model: models.userFiles
+      }
+    ]
+  })
+  return res.status(200).json({success: true, message: "success", data: result, code: 200})	
+}
+
 module.exports = {
-	users
+	users,
+  userDetail
 }
