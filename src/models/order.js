@@ -70,6 +70,10 @@ module.exports = (sequelize, DataTypes) => {
     Order.belongsTo(models.userBank, {
       foreignKey: 'mrc_user_bank_id'
     })
+    Order.belongsTo(models.user, {
+      foreignKey: 'mrc_user_id',
+      onDelete: 'CASCADE'
+    })
   };
 
   return Order

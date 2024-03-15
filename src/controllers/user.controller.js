@@ -347,6 +347,11 @@ const banks = async (req, res) => {
 	return res.status(200).json({success: true, message: "success", data: banks, code: 200})	
 }
 
+const comissions = async (req, res) => {
+	let banks = await models.comissions.findAll()
+	return res.status(200).json({success: true, message: "success", data: banks, code: 200})	
+}
+
 const typeAccounts = async (req, res) => {
 	const idBank = req.params
 	let types = await models.typesAccount.findOne({
@@ -381,5 +386,6 @@ module.exports = {
 	newOrder,
 	sendImageOrder,
 	finalyOrder,
-	typeAccounts
+	typeAccounts,
+	comissions
 }

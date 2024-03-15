@@ -64,6 +64,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasOne(models.userFiles, {
       foreignKey: 'mrc_user_id'
     })
+    User.hasMany(models.order, {
+      foreignKey: 'mrc_user_id',
+      onDelete: 'CASCADE'
+    })
   };
 
 

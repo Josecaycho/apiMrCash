@@ -34,7 +34,6 @@ const users = async (req, res) => {
 
 const userDetail = async (req, res) => {
   const data = req.params.idUser
-  console.log(req.params.idUser,'body')
   let result = await models.user.findOne({
     where: {
       id: parseInt(data),
@@ -62,7 +61,72 @@ const userDetail = async (req, res) => {
   return res.status(200).json({success: true, message: "success", data: result, code: 200})	
 }
 
+const userUpdate = async (req, res) => {
+  const data = req.body
+  let result = await models.user.update(data, {
+    where: {
+      id: data.id
+    }
+  })
+  if (result.length === 1) {
+    return res.status(200).json({success: true, message: "success", data: null, code: 200})	
+  } else res.status(400).json({success: false, message: "Error de al encontrar usuario", data: null, code: 400})
+}
+
+const ordenes = async (req, res) => {
+  const {page, size, textUser,textOrden, state, startDate, endDate, lst} = req.query
+  let stateFilter = []
+  
+  if(lst === 'ordem'){
+    stateFilter = [5]
+  }else if(lst === 'devol'){
+    stateFilter = [3,4]
+  }else {
+    stateFilter = [0,1,2]
+  }
+
+	let result = await models.order.findAndCountAll({
+    limit: parseInt(size),
+    offset: page * size,
+    where :{
+      state: {
+        [Op.in]: state ? [state] : stateFilter
+      },
+      [Op.or]: [
+        { codigo: { [Op.like]: `%${textOrden}%` } },
+        { monto_send: { [Op.like]: `%${textOrden}%` } }
+      ]
+    },
+    include: [
+      {
+				model: models.user,
+        where: {
+          [Op.or]: [
+            { nombres: { [Op.like]: `%${textUser}%` } },
+            { apellidos: { [Op.like]: `%${textUser}%` } },
+            { dni: { [Op.like]: `%${textUser}%` } }
+          ]
+        }
+			},
+			{
+				model: models.bank
+			},
+			{
+				model: models.userBank,
+				include: [
+					{
+						model: models.bank
+					}
+				]
+			}
+		]
+  })
+	return res.status(200).json({success: true, message: "success", data: result, code: 200})	
+}
+
 module.exports = {
 	users,
-  userDetail
+  userDetail,
+  userUpdate,
+  ordenes
 }
