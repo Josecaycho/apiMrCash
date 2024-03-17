@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  let Bank = sequelize.define('bank', {
+  let BankUser = sequelize.define('bankUser', {
     id: {
       type: DataTypes.BIGINT,
       autoIncrement: true,
@@ -30,18 +30,12 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
   })
 
-  Bank.associate = function (models) {
-    Bank.hasMany(models.typesAccount,{ 
-      foreignKey: 'mrc_bank_id' 
-    })
-    Bank.hasMany(models.order, {
-      foreignKey: 'mrc_bank_id'
-    })
-    Bank.hasMany(models.userBank, {
-      foreignKey: 'mrc_bank_id'
+  BankUser.associate = function (models) {
+    BankUser.hasMany(models.order, {
+      foreignKey: 'bank_id'
     })
   };
 
 
-  return Bank
+  return BankUser
 }

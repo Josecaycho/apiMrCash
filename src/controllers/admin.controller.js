@@ -77,8 +77,8 @@ const ordenes = async (req, res) => {
   const {page, size, textUser,textOrden, state, startDate, endDate, lst} = req.query
   let stateFilter = []
   
-  if(lst === 'ordem'){
-    stateFilter = [5]
+  if(lst === 'orden'){
+    stateFilter = [1,4,5]
   }else if(lst === 'devol'){
     stateFilter = [3,4]
   }else {
@@ -124,9 +124,34 @@ const ordenes = async (req, res) => {
 	return res.status(200).json({success: true, message: "success", data: result, code: 200})	
 }
 
+const ordenDetail = async (req, res) => {
+  const data = req.params.idOrden
+  let result = await models.order.findOne({
+    where: {
+      id: parseInt(data),
+    },
+    include: [
+      {
+        model: models.bank,
+      },
+      {
+        model: models.bankUser,
+      },
+      {
+        model: models.user,
+      },
+      {
+        model: models.typesAccount
+      }
+    ]
+  })
+  return res.status(200).json({success: true, message: "success", data: result, code: 200})	
+}
+
 module.exports = {
 	users,
   userDetail,
   userUpdate,
-  ordenes
+  ordenes,
+  ordenDetail
 }

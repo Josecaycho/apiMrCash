@@ -37,6 +37,9 @@ module.exports = (sequelize, DataTypes) => {
     TypesAccount.hasMany(models.userBank, {
       foreignKey: 'mrc_type_account_id'
     })
+    TypesAccount.hasMany(models.order, {
+      foreignKey: 'type_account_id'
+    })
   };
 
 

@@ -51,6 +51,14 @@ module.exports = (sequelize, DataTypes) => {
     number_account: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    bank_id:{
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    type_account_id:{
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   },
   {
@@ -73,6 +81,12 @@ module.exports = (sequelize, DataTypes) => {
     Order.belongsTo(models.user, {
       foreignKey: 'mrc_user_id',
       onDelete: 'CASCADE'
+    })
+    Order.belongsTo(models.typesAccount, {
+      foreignKey: 'type_account_id'
+    })
+    Order.belongsTo(models.bankUser, {
+      foreignKey: 'bank_id'
     })
   };
 
