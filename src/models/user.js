@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
       autoIncrement: true,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     dni: {
       type: DataTypes.STRING,
@@ -41,7 +42,11 @@ module.exports = (sequelize, DataTypes) => {
     id_rol: {
       type: DataTypes.INTEGER,
       allowNull: false
-    }
+    },
+    creation_date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
   }, 
   {
     tableName: 'mrc_user',

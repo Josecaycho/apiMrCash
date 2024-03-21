@@ -3,31 +3,43 @@ const models = require("../models/index");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const users = async (req, res) => {
-  const {page, size, text, state, startDate, endDate} = req.query
-  let where = {}
+  const {page, size, text, state, startDate, endDate,comission} = req.query
+  let whereState = {}
+  let whereComission = {}
+  let whereDates = {}
   if(state) {
     where = {
       state: state,
-      [Op.or]: [
-        { nombres: { [Op.like]: `%${text}%` } },
-        { apellidos: { [Op.like]: `%${text}%` } },
-        { dni: { [Op.like]: `%${text}%` } }
-      ]
     }
-  }else {
-    where = {
-      [Op.or]: [
-        { nombres: { [Op.like]: `%${text}%` } },
-        { apellidos: { [Op.like]: `%${text}%` } },
-        { dni: { [Op.like]: `%${text}%` } }
-      ]
+  }
+
+  if(comission) {
+    whereComission = {
+      comision: { [Op.in]: [comission]},
+    }
+  }
+
+  if(startDate || endDate) {
+    whereDates = {
+        creation_date: {
+        [Op.between] : [startDate , endDate ]
+      }
     }
   }
 
 	let result = await models.user.findAndCountAll({
     limit: parseInt(size),
     offset: page * size,
-    where
+    where: {
+      ...whereState,
+      [Op.or]: [
+        { nombres: { [Op.like]: `%${text}%` } },
+        { apellidos: { [Op.like]: `%${text}%` } },
+        { dni: { [Op.like]: `%${text}%` } }
+      ],
+      ...whereComission,
+      ...whereDates
+    }
   })
 	return res.status(200).json({success: true, message: "success", data: result, code: 200})	
 }
@@ -62,15 +74,18 @@ const userDetail = async (req, res) => {
 }
 
 const userUpdate = async (req, res) => {
-  const data = req.body
-  let result = await models.user.update(data, {
-    where: {
-      id: data.id
+    const data = req.body
+    const [result] = await connection.query("call validate_dni(?) ", [data.dni])
+    if(result[0].length > 0) {
+      res.status(400).json({success: false, message: "DNI ya existente", data: null, code: 400})
+    }else{
+      let result = await models.user.update(data, {
+        where: {
+          id: data.id
+        }
+      })
+      return res.status(200).json({success: true, message: "success", data: null, code: 200})	
     }
-  })
-  if (result.length === 1) {
-    return res.status(200).json({success: true, message: "success", data: null, code: 200})	
-  } else res.status(400).json({success: false, message: "Error de al encontrar usuario", data: null, code: 400})
 }
 
 const ordenes = async (req, res) => {
