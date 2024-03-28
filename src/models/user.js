@@ -73,6 +73,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'mrc_user_id',
       onDelete: 'CASCADE'
     })
+    User.hasMany(models.historyOrder, {
+      foreignKey: 'mrc_user_id',
+      onDelete: 'CASCADE'
+    })
   };
 
 

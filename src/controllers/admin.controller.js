@@ -91,6 +91,7 @@ const userUpdate = async (req, res) => {
 const ordenes = async (req, res) => {
   const {page, size, textUser,textOrden, state, startDate, endDate, lst} = req.query
   let stateFilter = []
+  let whereDates = {}
   
   if(lst === 'orden'){
     stateFilter = [1,4,5]
@@ -98,6 +99,16 @@ const ordenes = async (req, res) => {
     stateFilter = [3,4]
   }else {
     stateFilter = [0,1,2]
+  }
+
+  console.log()
+
+  if(startDate || endDate) {
+    whereDates = {
+      create_date: {
+        [Op.between] : [new Date(startDate).toISOString() , new Date(endDate).toISOString() ]
+      }
+    }
   }
 
 	let result = await models.order.findAndCountAll({
@@ -110,7 +121,8 @@ const ordenes = async (req, res) => {
       [Op.or]: [
         { codigo: { [Op.like]: `%${textOrden}%` } },
         { monto_send: { [Op.like]: `%${textOrden}%` } }
-      ]
+      ],
+      ...whereDates
     },
     include: [
       {
@@ -154,13 +166,50 @@ const ordenDetail = async (req, res) => {
       },
       {
         model: models.user,
+        attributes: ['nombres', 'apellidos','dni','email','comision','phone'], 
       },
       {
         model: models.typesAccount
+      },
+      {
+        model: models.historyOrder,
+        include: [
+					{
+						model: models.user,
+            attributes: ['nombres', 'apellidos'], 
+					}
+				]
       }
     ]
   })
   return res.status(200).json({success: true, message: "success", data: result, code: 200})	
+}
+
+const updateStatusOrder = async (req, res) => {
+  let dt = new Date()
+  let day = dt.getDate()
+  let month = dt.getMonth()
+  let year = dt.getFullYear()
+  let dateNow = `${year}-${month + 1}-${day}`
+  const tokenSearch = req.token
+  const data = req.body
+  const {idOrden} = req.params
+  try {
+    const userId = await models.user.findOne({
+      where: {
+        token: tokenSearch
+      }
+    })
+    await models.order.update(data, {
+      where: {
+        id: idOrden
+      }
+    })
+    await models.historyOrder.create({mrc_user_id: userId.id,mrc_order_id: idOrden, create_date: dateNow, state_order: data.state })
+    return res.status(200).json({success: true, message: "success", data: null, code: 200})	
+  } catch (error) {
+    
+  }
 }
 
 module.exports = {
@@ -168,5 +217,6 @@ module.exports = {
   userDetail,
   userUpdate,
   ordenes,
-  ordenDetail
+  ordenDetail,
+  updateStatusOrder
 }

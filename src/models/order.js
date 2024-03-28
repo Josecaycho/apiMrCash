@@ -88,6 +88,9 @@ module.exports = (sequelize, DataTypes) => {
     Order.belongsTo(models.bankUser, {
       foreignKey: 'bank_id'
     })
+    Order.hasMany(models.historyOrder, {
+      foreignKey: 'mrc_order_id'
+    })
   };
 
   return Order
