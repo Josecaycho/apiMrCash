@@ -205,7 +205,7 @@ const updateStatusOrder = async (req, res) => {
         id: idOrden
       }
     })
-    await models.historyOrder.create({mrc_user_id: userId.id,mrc_order_id: idOrden, create_date: dateNow, state_order: data.state })
+    await models.historyOrder.create({mrc_user_id: userId.id,mrc_order_id: idOrden, create_date: dateNow, state_order: data.state, obs: data.obs })
     return res.status(200).json({success: true, message: "success", data: null, code: 200})	
   } catch (error) {
     

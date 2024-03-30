@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
     state_order: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    obs: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false
     }
   }, 
   {
