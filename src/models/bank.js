@@ -17,6 +17,19 @@ module.exports = (sequelize, DataTypes) => {
     info: {
       type: DataTypes.TEXT('long'),
       allowNull: false
+    },
+    comision: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: false
+    },
+    tipo_comision: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+      // { 1: monto, 2: porcentaje}
+    },
+    color: {
+      type: DataTypes.STRING,
+      allowNull: false,
     }
   }, 
   {

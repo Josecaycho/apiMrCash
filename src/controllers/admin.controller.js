@@ -212,11 +212,36 @@ const updateStatusOrder = async (req, res) => {
   }
 }
 
+const dataEstadistic = async (req, res) => {
+  try {
+    const data = req.body
+    if(data.bank === 0){
+      const banks = await models.bank.findAll()
+      for (let i = 0; i < banks.length; i++) {
+        const [result] = await connection.query("call data_grafic(?,?,?,?)", [data.year, data.monthInicial, data.monthFinal,banks[i].id])
+        banks[i].dataValues.contentInfo = result[0][0]
+      }
+      return res.status(200).json({success: true, message: "success", data: banks, code: 200})	 
+    }else{
+      const banks = await models.bank.findOne({
+        where: {
+          id: data.bank
+        }
+      })
+      const [result] = await connection.query("call data_grafic(?,?,?,?)", [data.year, data.monthInicial, data.monthFinal,data.bank])
+      return res.status(200).json({success: true, message: "success", data: [{...banks.dataValues, contentInfo: result[0][0]}], code: 200})	 
+    }
+  } catch (error) {
+    
+  }
+}
+
 module.exports = {
 	users,
   userDetail,
   userUpdate,
   ordenes,
   ordenDetail,
-  updateStatusOrder
+  updateStatusOrder,
+  dataEstadistic
 }

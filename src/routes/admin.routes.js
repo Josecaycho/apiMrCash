@@ -17,6 +17,7 @@ router.get("/user/:idUser", verifyToken, adminController.userDetail)
 router.post("/user/update", verifyToken, adminController.userUpdate)
 router.get("/orden/:idOrden", verifyToken, adminController.ordenDetail)
 router.post("/orden/:idOrden/update", verifyToken, adminController.updateStatusOrder)
+router.post("/estadistic",verifyToken, adminController.dataEstadistic)
 
 function verifyToken(req, res, next) {
   const bearearHeader = req.headers['authorization']
