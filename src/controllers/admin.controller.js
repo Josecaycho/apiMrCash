@@ -8,7 +8,7 @@ const users = async (req, res) => {
   let whereComission = {}
   let whereDates = {}
   if(state) {
-    where = {
+    whereState = {
       state: state,
     }
   }

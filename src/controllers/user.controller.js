@@ -340,9 +340,10 @@ const banks = async (req, res) => {
 	let banks = await models.bank.findAll({
 		include: [
 			{
-				model: models.typesAccount
+				model: models.typesAccount,
 			}
-		]
+		],
+		order: [[{ model: models.typesAccount }, 'id', 'ASC']]
 	})
 	return res.status(200).json({success: true, message: "success", data: banks, code: 200})	
 }
