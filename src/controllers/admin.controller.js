@@ -53,9 +53,6 @@ const userDetail = async (req, res) => {
     include: [
       {
         model: models.userBank,
-        where: {
-          state: 0
-        },
         include: [
 					{
 						model: models.bank

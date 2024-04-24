@@ -9,8 +9,12 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.USER_CONECTION
   host: process.env.HOST,
   dialect: "mysql",
   port: 3306,
+  timezone: '-05:00',
   define: {
     timestamps: false
+  },
+  dialectOptions: {
+    useUTC: false
   }
 });
 
